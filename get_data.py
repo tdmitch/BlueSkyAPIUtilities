@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
     get_data.py
 
     This file contains functions to allow downloading of publicly-available data from the Bluesky API.
-    This uses the public functions of theAPI, so it doesn't require authentication.
+    This uses the public functions of the API, so it doesn't require authentication.
 
 
 """
