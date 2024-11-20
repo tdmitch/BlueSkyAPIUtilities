@@ -1,5 +1,5 @@
 import pandas as pd
-import pyodbc
+import psycopg2
 import get_data
 from datetime import datetime, timedelta
 import os
@@ -11,30 +11,29 @@ from dotenv import load_dotenv
     This script contains functions to write data to a SQL Server database.
 """
 
-# Get SQL Server connection string
-def get_conn_string(server, db):
-    conn_str = (
-        r'DRIVER={ODBC Driver 17 for SQL Server};'
-        r'SERVER=' + server + ';'
-        r'DATABASE=' + db + ';'
-        r'Trusted_Connection=yes;'
+# Get Postgres connection
+def get_db_connection():
+
+    # Establish a connection to the PostgreSQL database
+    conn = psycopg2.connect(
+        host = os.getenv('DB_SERVER_NAME'),
+        dbname = os.getenv('DB_NAME'),
+        user = os.getenv('DB_USER'),
+        password = os.getenv('DB_PASSWORD'),
+        port = os.getenv('DB_PORT')
     )
-    return conn_str
+
+    return conn
 
 
 # Write list of posts to specified server and table
-def write_posts_to_db(post_data, output_table):
-
+def write_list_to_db(list_data, output_table):
+    
     # This script writes a list of posts to a SQL Server table. If the table already exists, it will be dropped and recreated.
 
-    load_dotenv()
-    DB_SERVER_NAME = os.getenv('DB_SERVER_NAME')
-    DB_NAME = os.getenv('DB_NAME')
-
-    
+        
     # Connect to SQL Server
-    conn_str = get_conn_string(DB_SERVER_NAME, DB_NAME)
-    conn = pyodbc.connect(conn_str)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Column list vars
@@ -43,24 +42,28 @@ def write_posts_to_db(post_data, output_table):
 
 
     # Create table
-    firstrow = post_data[0]
+    firstrow = list_data[0]
     for col in firstrow.keys():
         if colListWithDataType != "":
             colListWithDataType = colListWithDataType + "\r\n\t, "            
-        colListWithDataType = colListWithDataType + col + " NVARCHAR(500)"
+        colListWithDataType = colListWithDataType + col + " VARCHAR"
         colList.append(col)
 
-    create_sql = "IF OBJECT_ID('" + output_table + "', 'U') IS NOT NULL\r\n\tDROP TABLE " + output_table + ";\r\n\r\n"
-    create_sql += ""
-    create_sql += "CREATE TABLE " + output_table + " ("
+    # drop table if exists
+    drop_sql = "DROP TABLE IF EXISTS " + output_table
+    cursor.execute(drop_sql)
+
+    
+    create_sql = "CREATE TABLE " + output_table + " ("
     create_sql += "\t" + colListWithDataType
     create_sql += ")"
 
     cursor.execute(create_sql)
+    conn.commit()
 
     
     # Loop through list and insert each row
-    for row in post_data:
+    for row in list_data:
 
         # First column = don't use comma separator
         isFirst = True
@@ -91,17 +94,3 @@ def write_posts_to_db(post_data, output_table):
     conn.commit()
     cursor.close()
     conn.close()
-
-
-
-if __name__ == "__main__":
-
-    # Output table name
-    table_name = "dbo.skeets_stg"
-
-    # Get data
-    post_data = get_data.get_user_posts("tmtest.bsky.social")
-
-    # Write to DB
-    write_posts_to_db(post_data, table_name)
-    
