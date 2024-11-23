@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import psycopg2
 import db
 
+
 """
     get_data.py
 

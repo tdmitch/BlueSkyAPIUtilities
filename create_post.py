@@ -107,6 +107,7 @@ def create_simple_post_reply(text, date, rooturi, rootcid, parenturi, parentcid)
         },
     )
 
+
     #print(json.dumps(resp.json(), indent=2))
     resp.raise_for_status()
 
