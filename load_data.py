@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
-import psycopg2
 import db
 
 
@@ -102,6 +101,15 @@ def process_posts(raw_data):
                     #i += 1
 
     return output_rows
+
+
+
+def load_user_posts(user_handle, output_table):
+    post_data = get_posts(user_handle)
+    db.write_list_to_db(post_data, output_table)
+
+
+
 
 
 def load_followers(user_handle):

@@ -1,6 +1,6 @@
 import pandas as pd
 import psycopg2
-import get_data
+import load_data
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
