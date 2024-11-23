@@ -1,1 +1,1 @@
-./bin/load_posts.sh
+worker: bash bin/load_posts.sh
