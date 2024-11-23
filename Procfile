@@ -1,0 +1,1 @@
+./bin/load_posts.sh
