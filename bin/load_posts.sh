@@ -1,1 +1,1 @@
-python.exe import_user_posts.py "tmitch.net" "public.skeets_stg"
+python import_user_posts.py "tmitch.net" "public.skeets_stg"
